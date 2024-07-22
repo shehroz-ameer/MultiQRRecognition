@@ -66,4 +66,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //Google camera vision SDK dependency
+    implementation(libs.google.vision)
+    implementation(libs.exoplayer.core)
+    implementation(libs.exoplayer.ui)
+
 }

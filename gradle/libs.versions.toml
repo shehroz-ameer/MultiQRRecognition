@@ -8,6 +8,10 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
+runtimeLivedata = "1.6.8"
+visionCommon = "17.3.0"
+playServicesMlkitBarcodeScanning = "18.3.0"
+cameraCore = "1.3.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +31,13 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 google-vision = "com.google.android.gms:play-services-vision:20.1.3"
 exoplayer-core = "com.google.android.exoplayer:exoplayer-core:2.19.1"
 exoplayer-ui = "com.google.android.exoplayer:exoplayer-ui:2.19.1"
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
+dagger-hilt-android = "com.google.dagger:hilt-android:2.44"
+dagger-hilt-android-compiler = "com.google.dagger:hilt-android-compiler:2.44"
+hilt-navigation-compose = "androidx.hilt:hilt-navigation-compose:1.0.0"
+vision-common = { group = "com.google.mlkit", name = "vision-common", version.ref = "visionCommon" }
+play-services-mlkit-barcode-scanning = { group = "com.google.android.gms", name = "play-services-mlkit-barcode-scanning", version.ref = "playServicesMlkitBarcodeScanning" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -28,12 +28,14 @@ fun QRCodeScreen(viewModel: QRCodeViewModel = hiltViewModel()) {
     var hasCameraPermission by remember { mutableStateOf(false) }
     var noQRCodeDetected by remember { mutableStateOf(true) }
 
+    // Launcher to request camera permission
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         hasCameraPermission = isGranted
     }
 
+    // Request camera permission on first composable launch
     LaunchedEffect(Unit) {
         launcher.launch(Manifest.permission.CAMERA)
     }
@@ -44,6 +46,7 @@ fun QRCodeScreen(viewModel: QRCodeViewModel = hiltViewModel()) {
             .padding(16.dp)
     ) {
         if (hasCameraPermission) {
+            // Show the video and handle QR code detection
             ExoPlayerView(viewModel, onQRCodeDetection = { detected ->
                 noQRCodeDetected = !detected
             })
@@ -51,6 +54,8 @@ fun QRCodeScreen(viewModel: QRCodeViewModel = hiltViewModel()) {
             BasicText(text = "Camera permission is required to scan QR codes.")
         }
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Display a message if no QR codes are detected, otherwise list the detected QR codes
         if (noQRCodeDetected) {
             BasicText(text = "No QR codes detected")
         } else {

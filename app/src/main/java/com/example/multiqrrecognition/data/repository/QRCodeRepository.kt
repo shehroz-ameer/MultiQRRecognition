@@ -13,4 +13,8 @@ class QRCodeRepository @Inject constructor() {
     fun getQRCodes(): List<QRCode> {
         return qrCodes
     }
+
+    fun clearQRCodes() {
+        qrCodes.clear()
+    }
 }

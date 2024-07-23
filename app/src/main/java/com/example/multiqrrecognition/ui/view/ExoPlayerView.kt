@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.net.Uri
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -24,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.multiqrrecognition.data.model.QRCode
 import com.example.multiqrrecognition.ui.viewmodel.QRCodeViewModel
-import com.example.multiqrrecognition.utils.Constants
 import com.example.multiqrrecognition.utils.Constants.VIDEO_URI
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -39,6 +37,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.delay
+import timber.log.Timber
 
 @Composable
 fun ExoPlayerView(viewModel: QRCodeViewModel, onQRCodeDetection: (Boolean) -> Unit) {
@@ -64,21 +63,21 @@ fun ExoPlayerView(viewModel: QRCodeViewModel, onQRCodeDetection: (Boolean) -> Un
         textureView?.let { tv ->
             tv.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                 override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-                    Log.d("ExoPlayerDebug", "SurfaceTexture available, setting Surface")
+                    Timber.tag("ExoPlayerDebug").d("SurfaceTexture available, setting Surface")
                     exoPlayer.setVideoSurface(Surface(surface))
                 }
 
                 override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
                 override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                    Log.d("ExoPlayerDebug", "SurfaceTexture destroyed")
+                    Timber.tag("ExoPlayerDebug").d("SurfaceTexture destroyed")
                     exoPlayer.setVideoSurface(null)
                     return true
                 }
 
                 override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
             }
-        } ?: Log.d("ExoPlayerDebug", "TextureView is null")
+        } ?: Timber.tag("ExoPlayerDebug").d("TextureView is null")
     }
 
     LaunchedEffect(textureView) {
@@ -87,10 +86,11 @@ fun ExoPlayerView(viewModel: QRCodeViewModel, onQRCodeDetection: (Boolean) -> Un
             textureView?.let { tv ->
                 val bitmap = tv.bitmap
                 if (bitmap != null) {
-                    Log.d("QRCodeProcessing", "Captured frame for processing, bitmap size: ${bitmap.width}x${bitmap.height}")
+                    Timber.tag("QRCodeProcessing")
+                        .d("Captured frame for processing, bitmap size: %s x %s", bitmap.width, bitmap.height)
                     processFrame(bitmap, viewModel, onQRCodeDetection)
                 } else {
-                    Log.d("QRCodeProcessing", "TextureView bitmap is null")
+                    Timber.tag("QRCodeProcessing").d("TextureView bitmap is null")
                 }
             }
         }
@@ -122,12 +122,12 @@ private fun buildMediaSource(context: Context, uri: Uri): MediaSource {
     val dataSourceFactory = DefaultDataSource.Factory(context)
     return ProgressiveMediaSource.Factory(dataSourceFactory)
         .createMediaSource(MediaItem.fromUri(uri)).also {
-            Log.d("ExoPlayer", "MediaSource created for URI: $uri")
+            Timber.tag("ExoPlayer").d("MediaSource created for URI: %s", uri)
         }
 }
 
 private fun processFrame(bitmap: Bitmap, viewModel: QRCodeViewModel, onQRCodeDetection: (Boolean) -> Unit) {
-    Log.d("QRCodeProcessing", "Processing frame")
+    Timber.tag("QRCodeProcessing").d("Processing frame")
     val inputImage = InputImage.fromBitmap(bitmap, 0)
     val options = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
@@ -137,19 +137,19 @@ private fun processFrame(bitmap: Bitmap, viewModel: QRCodeViewModel, onQRCodeDet
     scanner.process(inputImage)
         .addOnSuccessListener { barcodes ->
             if (barcodes.isEmpty()) {
-                Log.d("QRCodeProcessing", "No QR codes detected")
+                Timber.tag("QRCodeProcessing").d("No QR codes detected")
                 onQRCodeDetection(false)
             } else {
-                Log.d("QRCodeProcessing", "QR codes detected")
+                Timber.tag("QRCodeProcessing").d("QR codes detected")
                 onQRCodeDetection(true)
             }
             viewModel.clearQRCodes()
             for (barcode in barcodes) {
-                Log.d("QRCodeProcessing", "QR Code detected: ${barcode.displayValue}")
+                Timber.tag("QRCodeProcessing").d("QR Code detected: %s", barcode.displayValue)
                 viewModel.addQRCode(QRCode(barcode.displayValue ?: ""))
             }
         }
         .addOnFailureListener { e ->
-            Log.e("QRCodeProcessing", "Failed to process QR codes", e)
+            Timber.tag("QRCodeProcessing").e(e, "Failed to process QR codes")
         }
 }
